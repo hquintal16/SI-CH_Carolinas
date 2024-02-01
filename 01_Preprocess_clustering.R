@@ -1,33 +1,50 @@
+#Setup----
+#Updated Feb 2024
+#Linked to GitHub
+#Hunter Quintal
+#purpose: 
+#First script which pre-processes input data######
+#1. Import ncdf files
+#2. Compute values of extreme thresholds
+#3. Estimate parameters for DBSCAN
+#4. Cluster extreme wind and precipitation
+#5. Save intermediary data and metadata of single hazard cluster
+#outputs saved in folder: V:\DATA\NC_Quintal_Manuscript_Data_Scripts\PhD3_Cluster_Analysis\SI-CH_Carolinas
+#study area: North Carolina, South Carolina
+
+##Setwd----
+wd_path<-"V:\\DATA\\NC_Quintal_Manuscript_Data_Scripts\\PhD3_Cluster_Analysis\\SI-CH_Carolinas"
+setwd(wd_path)
+
+#Current date
+date<-format(Sys.Date(),'%Y%m%d')
+
+#Create directory----
+# save_folder_path<- paste0(getwd(),"/",date,"_compound_haz_output")
+# dir.create(save_folder_path)
+
+##Read in packages----
+
+libs <- c('dbscan','mvtnorm','fpc','igraph','clValid','mcclust','geosphere',
+          'maps','mapproj','chron','lattice')
+sapply(libs,install.packages,character.only=T)
+libs <- c('ncdf4','dbscan','mvtnorm','dplyr','fpc','igraph','clValid','mcclust',
+          'geosphere','maps','mapproj','chron','lattice','RColorBrewer','lubridate')
+sapply(libs, require, character.only = T)
+
+
 ####First script which pre-processes input data######
 ####1. Import ncdf files
 ####2. Compute values of extreme thresholds
 ####3. Estimate parameters for DBSCAN
 ####4. Cluster extreme wind an precipitation
 ####5. Save intermediary data and metadata of single hazard cluster
-rm(list=ls())  
-gc()
-getwd()
-
-################Choose working directory here####################################
-
-# setwd("C:/Users/PhD Student/OneDrive - King's College London/DATA/04_Spatiotemporal")
-# setwd("C:/Users/k1638615/King's College London/OneDrive - King's College London/DATA/04_Spatiotemporal")
-
-setwd("C:/Users/Alois/OneDrive - King's College London/DATA/04_Spatiotemporal/spatiotemporal_clustering")
-
-##load libraries
-config_file=paste0(getwd(),"/config/config_general.R")
-source(config_file)
-library(ncdf4)
-library(dbscan)
 
 #===========================================================================================================
 
 ############Simulation study to show DBSCAN skills#####################
 
 #Synthetic data example for dbscan with data of the same format as the input data
-library(mvtnorm)
-library(dplyr)
 diag(3)
 generateGaussianData <- function(n, center, sigma, label) {
   data = rmvnorm(n, mean = center, sigma = sigma)
@@ -97,14 +114,14 @@ dataset1 %>% ggplot(aes(x=x, y=y, color=Cluster)) +
   geom_point() +
   coord_fixed() +
   theme_classic()
-library(fpc)
+
 eben<-cluster.stats(NULL,clustering=as.numeric(dataset1$class), alt.clustering = as.numeric(dataset1$Cluster))
-library(igraph)
+
 igraph::compare(as.numeric(dataset1$class), as.numeric(dataset1$Cluster), method = c("vi")) 
 igraph::compare(as.numeric(dataset1$class), as.numeric(dataset1$Cluster), method = c("adjusted.rand")) 
-library(mcclust)
+
 vi.dist(as.numeric(dataset1$class), as.numeric(dataset1$Cluster))
-library(clValid)
+
 dunn(Data=dbdat, cluster=rpip$cluster)
 table(dataset1$class, dataset1$Cluster)
 
@@ -126,7 +143,6 @@ gareax=garea
 length(garea[,1])/length(lagrid[,1])
 
 #test correctif de l'effet longlat
-library(geosphere)
 distGeo(c(longlims[2], latlims[1]), c(longlims[2], latlims[2]))/(1000*45)
 distGeo(c(longlims[1], latlims[1]), c(longlims[2], latlims[1]))/(1000*33)
 
@@ -261,9 +277,9 @@ ggplot(uk_fort, aes(x=long,y=lat,group=group)) +
   geom_tile(data=lagrid,aes(x=Var1,y=Var2,group=Var1),alpha=.01, col="tomato4",fill="transparent") +
   geom_tile(data=gareax,aes(x=Var1,y=Var2,group=Var1),alpha=.8,fill="red") +
   scale_y_continuous(
-    breaks = c(48,50,52,54,56,58),labels= c("48°N","50°N","52°N","54°N","56°N","58°N"),limits = c(40,70),"Latitude")+
+    breaks = c(48,50,52,54,56,58),labels= c("48?N","50?N","52?N","54?N","56?N","58?N"),limits = c(40,70),"Latitude")+
   scale_x_continuous(
-    breaks =c(-6,-4,-2,0,2),labels= c("-6°E","-4°E","-2°E","0°E","2°E"),"Longitude") 
+    breaks =c(-6,-4,-2,0,2),labels= c("-6?E","-4?E","-2?E","0?E","2?E"),"Longitude") 
 
  
 ################################Import ncdf files#####################################
@@ -530,9 +546,9 @@ ggplot(uk_fort, aes(x=long,y=lat,group=group)) +
         legend.key = element_rect(fill = "transparent", colour = "transparent"),
         legend.key.size = unit(1, "cm"))+
   scale_y_continuous(
-    breaks = c(48,50,52,54,56,58),labels= c("48°N","50°N","52°N","54°N","56°N","58°N"),limits = c(40,70),"Latitude")+
+    breaks = c(48,50,52,54,56,58),labels= c("48?N","50?N","52?N","54?N","56?N","58?N"),limits = c(40,70),"Latitude")+
   scale_x_continuous(
-    breaks =c(-6,-4,-2,0,2),labels= c("-6°E","-4°E","-2°E","0°E","2°E"),limits=c(-10,10),"Longitude") 
+    breaks =c(-6,-4,-2,0,2),labels= c("-6?E","-4?E","-2?E","0?E","2?E"),limits=c(-10,10),"Longitude") 
 
 
 ggplot(uk_fort, aes(x=long,y=lat,group=group)) +
@@ -550,9 +566,9 @@ ggplot(uk_fort, aes(x=long,y=lat,group=group)) +
         legend.key = element_rect(fill = "transparent", colour = "transparent"),
         legend.key.size = unit(1, "cm"))+
   scale_y_continuous(
-    breaks = c(48,50,52,54,56,58),labels= c("48°N","50°N","52°N","54°N","56°N","58°N"),limits = c(40,70),"Latitude")+
+    breaks = c(48,50,52,54,56,58),labels= c("48?N","50?N","52?N","54?N","56?N","58?N"),limits = c(40,70),"Latitude")+
   scale_x_continuous(
-    breaks =c(-6,-4,-2,0,2),labels= c("-6°E","-4°E","-2°E","0°E","2°E"),limits=c(-10,10),"Longitude") 
+    breaks =c(-6,-4,-2,0,2),labels= c("-6?E","-4?E","-2?E","0?E","2?E"),limits=c(-10,10),"Longitude") 
 
 ############Preparation of the data for clustering###########
 
